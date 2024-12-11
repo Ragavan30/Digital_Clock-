@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #222;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .clock {
+            text-align: center;
+            background: #333;
+            padding: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        .time {
+            font-size: 5rem;
+            letter-spacing: 0.1rem;
+        }
+        .day {
+            font-size: 2rem;
+            margin-top: 1rem;
+        }
+        .icons {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        .icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 10px;
+            background: #444;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+        .icon img {
+            width: 60%;
+            height: 60%;
+        }
+        .calendar, .stopwatch {
+            margin-top: 1rem;
+            display: none;
+            background: #444;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            color: #fff;
+        }
+        .calendar table {
+            margin: 0 auto;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="clock">
+        <div class="time" id="time">00:00:00</div>
+        <div class="day" id="day">Day</div>
+        <div class="icons">
+            <div class="icon" onclick="setAlarm()">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/alarm-clock.png" alt="Alarm Icon">
+            </div>
+            <div class="icon" onclick="toggleCalendar()">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/calendar.png" alt="Calendar Icon">
+            </div>
+            <div class="icon" onclick="toggleStopwatch()">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/time-machine.png" alt="Time Machine Icon">
+            </div>
+        </div>
+        <div class="calendar" id="calendar">
+            <p>Today's Date: <span id="currentDate"></span></p>
+        </div>
+        <div class="stopwatch" id="stopwatch">
+            <p>Stopwatch: <span id="stopwatchTime">00:00:00</span></p>
+            <button onclick="startStopwatch()">Start</button>
+            <button onclick="stopStopwatch()">Stop</button>
+            <button onclick="resetStopwatch()">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const day = days[now.getDay()];
+
+            const timeElement = document.getElementById('time');
+            const dayElement = document.getElementById('day');
+            timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+            dayElement.textContent = day;
+
+            document.getElementById('currentDate').textContent = now.toDateString();
+        }
+
+        let stopwatchInterval;
+        let stopwatchSeconds = 0;
+
+        function formatTime(seconds) {
+            const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+            const secs = String(seconds % 60).padStart(2, '0');
+            return `${hrs}:${mins}:${secs}`;
+        }
+
+        function setAlarm() {
+            const alarmTime = prompt("Enter alarm time in HH:MM:SS format:");
+            if (/^\d{2}:\d{2}:\d{2}$/.test(alarmTime)) {
+                alert(`Alarm set for ${alarmTime}.`);
+                const alarmInterval = setInterval(() => {
+                    const now = new Date();
+                    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+                    if (currentTime === alarmTime) {
+                        alert("Alarm ringing!");
+                        clearInterval(alarmInterval);
+                    }
+                }, 1000);
+            } else {
+                alert("Invalid time format. Please use HH:MM:SS.");
+            }
+        }
+
+        function toggleCalendar() {
+            const calendar = document.getElementById('calendar');
+            calendar.style.display = calendar.style.display === 'none' || !calendar.style.display ? 'block' : 'none';
+        }
+
+        function toggleStopwatch() {
+            const stopwatch = document.getElementById('stopwatch');
+            stopwatch.style.display = stopwatch.style.display === 'none' || !stopwatch.style.display ? 'block' : 'none';
+        }
+
+        function startStopwatch() {
+            if (!stopwatchInterval) {
+                stopwatchInterval = setInterval(() => {
+                    stopwatchSeconds++;
+                    document.getElementById('stopwatchTime').textContent = formatTime(stopwatchSeconds);
+                }, 1000);
+            }
+        }
+
+        function stopStopwatch() {
+            clearInterval(stopwatchInterval);
+            stopwatchInterval = null;
+        }
+
+        function resetStopwatch() {
+            stopStopwatch();
+            stopwatchSeconds = 0;
+            document.getElementById('stopwatchTime').textContent = "00:00:00";
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock(); // Initial call to display clock immediately
+    </script>
+</body>
+</html>
